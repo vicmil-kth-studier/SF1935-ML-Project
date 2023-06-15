@@ -14,6 +14,10 @@ from typing import List
 random.seed(6)
 np.random.seed(6)
 
+w0_param = 0
+w1_param = 1.5
+w2_param = -0.8
+
 class Result:
     def __init__(self):
         self.test_mean = 0
@@ -38,9 +42,6 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
     print("alpha ", alpha)
 
     def generate_samples():
-        w0 = 0.25
-        w1 = 0.89
-        w2 = -0.52
         noice_mean = 0
         samples_x1 = list()
         samples_x2 = list()
@@ -54,22 +55,19 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
                 samples_x2.append(x2)
                 standard_deviation = pow(noice_variance, 0.5)
                 noice = np.random.normal(noice_mean, standard_deviation, 1)[0]
-                t = w0 + w1 * x1 + w2 * x2
+                t = w0_param + w1_param * x1 + w2_param * x2
                 t = t + noice
                 samples_t.append(t)
 
         return samples_x1, samples_x2, samples_t
 
     def get_sample_variance_estimator(samples_x1, samples_x2, samples_t):
-        w0 = 0.25
-        w1 = 0.89
-        w2 = -0.52
         sum = 0
         for i in range(len(samples_x1)):
             x1 = samples_x1[i]
             x2 = samples_x2[i]
             t = samples_t[i]
-            t_val = w0 + w1 * x1 + w2 * x2
+            t_val = w0_param + w1_param * x1 + w2_param * x2
             sum += pow(t - t_val, 2)
 
         return sum / (len(samples_x1) - 1)

@@ -18,6 +18,9 @@ from typing import List
 
 random.seed(4)
 np.random.seed(4)
+plt.rcParams.update({'font.size': 16})
+w0_param = -1.5
+w1_param = 0.5
 
 def plot_contour_plot(x: List[List[float]], y: List[List[float]], z: List[List[float]], x_label="w0", y_label="w1"):
     # x is indexed by [ind_x, ind_y] and reflects the x value at that position
@@ -25,8 +28,9 @@ def plot_contour_plot(x: List[List[float]], y: List[List[float]], z: List[List[f
     # z is indexed by [ind_x, ind_y] and reflects the z value at that position
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
+    plt.subplots_adjust(left=0.20, top=0.95, right=0.95, bottom=0.15)
+    plt.xlabel(x_label, fontsize=20)
+    plt.ylabel(y_label, fontsize=20)
     ax2.contourf(x, y, z)
 
 def get_data_for_distribution(mean_w0, mean_w1, variance_matrix: List[List[float]]):
@@ -44,8 +48,6 @@ def get_first_prior_distribution(alpha):
 
 def generate_samples(noice_variance):
     # noice_variance = 1 / beta
-    w0 = 0.25
-    w1 = 0.89
     noice_mean = 0
     samples_x = list()
     samples_t = list()
@@ -55,7 +57,7 @@ def generate_samples(noice_variance):
     for x in [lower + x*(upper-lower)/(length-1) for x in range(int(length))]:
         samples_x.append(x)
         noice = np.random.normal(noice_mean, noice_variance, 1)[0]
-        t = w0 + w1 * x
+        t = w0_param + w1_param * x
         t = t + noice
         samples_t.append(t)
 

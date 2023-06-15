@@ -15,9 +15,14 @@ import scipy
 import random
 import math
 from typing import List
+import time
 
 random.seed(4)
 np.random.seed(4)
+
+plt.rcParams.update({'font.size': 16})
+w0_param = -1.5
+w1_param = 0.5
 
 def plot_contour_plot(x: List[List[float]], y: List[List[float]], z: List[List[float]], x_label="w0", y_label="w1"):
     # x is indexed by [ind_x, ind_y] and reflects the x value at that position
@@ -25,12 +30,13 @@ def plot_contour_plot(x: List[List[float]], y: List[List[float]], z: List[List[f
     # z is indexed by [ind_x, ind_y] and reflects the z value at that position
     fig2 = plt.figure()
     ax2 = fig2.add_subplot(111)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
+    plt.subplots_adjust(left=0.20, top=0.95, right=0.95, bottom=0.15)
+    plt.xlabel(x_label, fontsize=20)
+    plt.ylabel(y_label, fontsize=20)
     ax2.contourf(x, y, z)
 
 def get_data_for_distribution(mean_w0, mean_w1, variance_matrix: List[List[float]]):
-    w0, w1 = np.mgrid[-1:1:.01, -1:1:.01]
+    w0, w1 = np.mgrid[-2:2:.01, -2:2:.01]
     pos = np.dstack((w0, w1))
     rv = multivariate_normal([mean_w0, mean_w1], variance_matrix)
     z = rv.pdf(pos)
@@ -43,8 +49,6 @@ def get_first_prior_distribution(alpha):
     return get_data_for_distribution(mean, mean, variance_matrix)
 
 def generate_samples(noice_variance):
-    w0 = 0.25
-    w1 = 0.89
     noice_mean = 0
     samples_x = list()
     samples_t = list()
@@ -54,7 +58,7 @@ def generate_samples(noice_variance):
     for x in [lower + x*(upper-lower)/(length-1) for x in range(int(length))]:
         samples_x.append(x)
         noice = np.random.normal(noice_mean, noice_variance, 1)[0]
-        t = w0 + w1 * x
+        t = w0_param + w1_param * x
         t = t + noice
         samples_t.append(t)
 
@@ -90,7 +94,7 @@ samples_x, samples_t = randomize_sample_order(samples_x, samples_t)
 # Get the posterior distribution
 t = list()
 Phi = list()
-sample_count = 7
+sample_count = 100
 for i in range(0, sample_count):
     print(f"({samples_x[i]}, {samples_t[i]})")
     t.append(samples_t[i])
@@ -112,6 +116,8 @@ plot_contour_plot(w0, w1, z)
 plt.savefig(f"posterior_{sample_count}.png")
 
 # Draw 5 samples from posterior
+random.seed(int(time.time()))
+np.random.seed(int(time.time()))
 w0_samples, w1_samples = np.random.multivariate_normal(mean, variance, 5).T
 
 # Plot the 5 posterior samples
@@ -124,6 +130,9 @@ for i in range(len(w0_samples)):
 # Plot the sampled data
 #plt.scatter(samples_x, samples_t, c="red", s=2)
 plt.scatter(samples_x[:sample_count], samples_t[:sample_count], c="green", s=50)
+plt.subplots_adjust(left=0.20, top=0.95, right=0.95, bottom=0.15)
+plt.xlabel("x", fontsize=20)
+plt.ylabel("t", fontsize=20)
 plt.savefig(f"model_{sample_count}.png")
 
 # Choose the first as our data point
@@ -131,8 +140,8 @@ data_point_x = samples_x[sample_count-1]
 data_point_t = samples_t[sample_count-1]
 
 # Get the likelihood distribution
-w0_grid, w1_grid = np.mgrid[-1:1:.01, -1:1:.01]
-z, _ = np.mgrid[-1:1:.01, -1:1:.01]
+w0_grid, w1_grid = np.mgrid[-2:2:.01, -2:2:.01]
+z, _ = np.mgrid[-2:2:.01, -2:2:.01]
 for x_idx in range(len(w0_grid)):
     print(x_idx)
     for y_idx in range(len(w0_grid[x_idx])):

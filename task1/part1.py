@@ -16,15 +16,22 @@ from typing import List
 random.seed(4)
 np.random.seed(4)
 
+plt.rcParams.update({'font.size': 16})
+w0_param = -1.5
+w1_param = 0.5
+
 def plot_contour_plot(x: List[List[float]], y: List[List[float]], z: List[List[float]], x_label="w0", y_label="w1"):
     # x is indexed by [x, y]
     # y is indexed by [y, x]
     # z is indexed by [x, y]
     fig2 = plt.figure()
+    #fig2.set_size_inches(11.5, 11.5)
     ax2 = fig2.add_subplot(111)
-    plt.xlabel(x_label)
-    plt.ylabel(y_label)
+    plt.subplots_adjust(left=0.20, top=0.95, right=0.95, bottom=0.15)
+    plt.xlabel(x_label, fontsize=20)
+    plt.ylabel(y_label, fontsize=20)
     ax2.contourf(x, y, z)
+    fig2.savefig('prior.png', dpi=100)
 
 def get_data_for_distribution(mean_w0, mean_w1, variance_matrix: List[List[float]]):
     w0, w1 = np.mgrid[-1:1:.01, -1:1:.01]

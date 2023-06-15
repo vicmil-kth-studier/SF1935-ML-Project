@@ -16,12 +16,15 @@ from typing import List
 random.seed(4)
 np.random.seed(4)
 
-noice_variance = 0.4
+plt.rcParams.update({'font.size': 14})
+
+noice_variance = 0.6
+
+w0_param = 0
+w1_param = 1.5
+w2_param = -0.8
 
 def generate_samples():
-    w0 = 0.25
-    w1 = 0.89
-    w2 = -0.52
     noice_mean = 0
     samples_x1 = list()
     samples_x2 = list()
@@ -35,7 +38,7 @@ def generate_samples():
             samples_x2.append(x2)
             standard_deviation = pow(noice_variance, 0.5)
             noice = np.random.normal(noice_mean, standard_deviation, 1)[0]
-            t = w0 + w1 * x1 + w2 * x2
+            t = w0_param + w1_param * x1 + w2_param * x2
             t = t + noice
             samples_t.append(t)
 
@@ -70,6 +73,10 @@ for i in range(len(samples_x1)):
     color_g = (samples_x2[i] - min(samples_x2)) / (max(samples_x2) - min(samples_x2))
     color_b = (samples_t[i] - min(samples_t)) / (max(samples_t) - min(samples_t))
     ax.scatter(samples_x1[i], samples_x2[i], samples_t[i], c = (color_r, color_b, color_g), s = 5)
+
+ax.set_xlabel('x1', fontsize=16)
+ax.set_ylabel('x2', fontsize=16)
+ax.set_zlabel('t', fontsize=16)
 
 plt.savefig(f"task2samples_{noice_variance}.png")
 plt.show(block=True)
