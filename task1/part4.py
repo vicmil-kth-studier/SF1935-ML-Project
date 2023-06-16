@@ -125,7 +125,7 @@ fig3 = plt.figure()
 for i in range(len(w0_samples)):
     x = [min(samples_x), max(samples_x)]
     y = [w0_samples[i] + x[0]*w1_samples[i], w0_samples[i] + x[1]*w1_samples[i]]
-    plt.plot(x, y)
+    #plt.plot(x, y)
 
 # Plot the sampled data
 #plt.scatter(samples_x, samples_t, c="red", s=2)

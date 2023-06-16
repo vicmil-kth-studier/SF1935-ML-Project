@@ -27,12 +27,14 @@ class Result:
         self.training_variance = 0
         self.training_msq = 0
         self.training_on_test_msq = 0
+        self.training_on_test_variance = 0
         self.training_samples_x1 = list()
         self.training_samples_x2 = list()
         self.training_samples_t = list()
         self.test_samples_x1 = list()
         self.test_samples_x2 = list()
         self.test_samples_t = list()
+        self.sample_bias = 0
 
 
 def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
@@ -70,7 +72,7 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
             t_val = w0_param + w1_param * x1 + w2_param * x2
             sum += pow(t - t_val, 2)
 
-        return sum / (len(samples_x1) - 1)
+        return sum / (len(samples_x1))
 
     def randomize_sample_order(samples_x1, samples_x2, samples_t):
         ret_samples_x1 = list()
@@ -136,34 +138,35 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
             result.training_samples_x2.append(samples_x2[i])
             result.training_samples_t.append(samples_t[i])
 
-    result.training_mean, result.training_variance = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [0.3, 0.3])
+    """result.training_mean, result.training_variance = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [0.3, 0.3])
     result.test_mean, result.test_variance = get_predicted_mean_and_variance(result.test_samples_x1, result.test_samples_x2, result.test_samples_t, [0.3, 0.3])
+    """
 
     #print("training mean, variance", result.training_mean, result.training_variance)
     #print("test mean, variance", result.test_mean, result.test_variance)
 
     # Plot the prob function
-    x_vals = list()
+    """x_vals = list()
     y_vals = list()
     i = -2
     while i <= 2:
         i = i + 0.01
         x_vals.append(i)
         p = normal_pdf(mean=result.training_mean, variance=result.training_variance, data_point_t=i)
-        y_vals.append(p)
+        y_vals.append(p)"""
 
     #plt.figure()
     #plt.scatter(x_vals, y_vals, c="blue")
 
     # Plot the prob function
-    x_vals = list()
+    """x_vals = list()
     y_vals = list()
     i = -2
     while i <= 2:
         i = i + 0.01
         x_vals.append(i)
         p = normal_pdf(mean=result.test_mean, variance=result.test_variance, data_point_t=i)
-        y_vals.append(p)
+        y_vals.append(p)"""
 
     #plt.scatter(x_vals, y_vals, c="red")
 
@@ -171,48 +174,57 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
     #plt.xlabel('t')
 
     # Calculate the mean square error of the predictions
-    sum = 0
+    msq_sum = 0
+    variance_sum = 0
     for i in range(len(result.test_samples_t)):
         x1 = result.test_samples_x1[i]
         x2 = result.test_samples_x2[i]
         t = result.test_samples_t[i]
-        predicted_t, _ = get_predicted_mean_and_variance(result.test_samples_x1, result.test_samples_x2, result.test_samples_t, [x1, x2])
+        predicted_t, variance = get_predicted_mean_and_variance(result.test_samples_x1, result.test_samples_x2, result.test_samples_t, [x1, x2])
         err = t - predicted_t
-        sum += err * err
+        msq_sum += err * err
+        variance_sum += variance
 
-    result.test_msq = sum / (len(result.test_samples_t))
+    result.test_msq = msq_sum / (len(result.test_samples_t))
+    result.test_variance = variance_sum / (len(result.test_samples_t))
     #print("test msq", result.test_msq)
 
 
     # Calculate the mean square error of the predictions
-    sum = 0
+    msq_sum = 0
+    variance_sum = 0
     for i in range(len(result.training_samples_t)):
         x1 = result.training_samples_x1[i]
         x2 = result.training_samples_x2[i]
         t = result.training_samples_t[i]
-        predicted_t, _ = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [x1, x2])
+        predicted_t, variance = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [x1, x2])
         err = t - predicted_t
-        sum += err * err
+        msq_sum += err * err
+        variance_sum += variance
 
-    result.training_on_test_msq = sum / (len(result.training_samples_t))
+    result.training_msq = msq_sum / (len(result.training_samples_t))
+    result.training_variance = variance_sum / (len(result.training_samples_t))
     #print("training on test msq", result.training_on_test_msq)
 
 
     # Calculate the mean square error of the predictions
-    sum = 0
+    msq_sum = 0
+    variance_sum = 0
     for i in range(len(result.test_samples_t)):
         x1 = result.test_samples_x1[i]
         x2 = result.test_samples_x2[i]
         t = result.test_samples_t[i]
-        predicted_t, _ = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [x1, x2])
+        predicted_t, variance = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [x1, x2])
         err = t - predicted_t
-        sum += err * err
+        msq_sum += err * err
+        variance_sum += variance
 
-    result.training_msq = sum / (len(result.test_samples_t))
+    result.training_on_test_msq = msq_sum / (len(result.test_samples_t))
+    result.training_on_test_variance = variance_sum / (len(result.test_samples_t))
     #print("training on test msq", result.training_msq)
 
     # Plot the predictions and the actual data
-    x1_vals = list()
+    """x1_vals = list()
     x2_vals = list()
     y_vals = list()
     for i in range(200):
@@ -222,13 +234,15 @@ def task6(noice_variance = 0.4, alpha = 1.5) -> Result:
         predicted_t, _ = get_predicted_mean_and_variance(result.training_samples_x1, result.training_samples_x2, result.training_samples_t, [x1, x2])
         x1_vals.append(x1)
         x2_vals.append(x2)
-        y_vals.append(predicted_t)
+        y_vals.append(predicted_t)"""
 
     #fig = plt.figure()
     #ax = fig.add_subplot(projection='3d')
     #ax.scatter(training_samples_x1, training_samples_x2, training_samples_t, c = "green", s = 5)
     #ax.scatter(x1_vals, x2_vals, y_vals, c = "red", s = 5)
     #plt.show(block=True)
+    result.sample_bias = get_sample_variance_estimator(result.training_samples_x1, result.training_samples_x2, result.training_samples_t)
+
     return result
 
 
